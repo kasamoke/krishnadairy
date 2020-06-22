@@ -1,3 +1,5 @@
+const { query } = require('express');
+
 module.exports = (app,con)=>{
 
     var bodyParser = require('body-parser');
@@ -17,7 +19,7 @@ module.exports = (app,con)=>{
         res.redirect(307,"/deleteUser");
     }
     else 
-    if(operation === 'alluser'){
+    if(operation === 'allusers'){
         res.redirect(303,"/allUsers");
     }
     else 
@@ -27,6 +29,22 @@ module.exports = (app,con)=>{
     else
     if(operation === 'loginuser'){
         res.redirect(307,'/loginUser');
+    }
+    else
+    if(operation === 'suspenduser'){
+        res.redirect(307,'/suspendUser');
+    }
+    else
+    if(operation === 'verifyotp'){
+        res.redirect(307,'/verifyotp');
+    }
+    else 
+    if(operation === 'updateuser'){
+        res.redirect(307,'/updateUser');
+    }
+    else
+    if(operation === 'changepassword'){
+        res.redirect(307,'/changePassword');
     }
     else{
         res.json({"err_message":"key value error"});
@@ -104,5 +122,80 @@ app.post('/loginUser',(req,res)=>{
     });
 });
 
+//suspend an user
+app.post('/suspendUser',(req,res)=>{
+    var suspend_state = req.body.suspend_state;
+    var id = req.body.id;
+    //to suspend user
+    if(suspend_state === true){
+        querys = "update user_dat set suspended = 1 where id = '" + id + "'";
+        con.query(querys,(err,result)=>{
+            if(err){res.json({"err_message":"Error occured in query " + err});}
+            else{
+               res.json({"status":"OK"});
+            }
+        });
+    }
+    //to active the user
+    else if(suspend_state === false){
+        querys = "update user_dat set suspended = 0 where id = '" + id + "'";
+        con.query(querys,(err,result)=>{
+            if(err){res.json({"err_message":"Error occured in query " + err});}
+            else{
+                res.json({"status":"OK"});
+            }
+            });
+    }
+});
 
+//verfiy otp status change
+app.post('/verifyotp',(req,res)=>{
+    var isotpVerified = req.body.isotpVerified;
+    var id = req.body.id;
+    //if otp is verified
+    if(isotpVerified === true){
+        querys = "update user_dat set otp_verified = 1 where id = '" + id + "'";
+        con.query(querys,(err,result)=>{
+            if(err){res.json({"err_message":"Error occured in query " + err});}
+            else{
+                res.json({"status":"OK"});
+            }
+            });
+    }
+    //if otp is not verified
+    else if(isotpVerified === false){
+        querys = "update user_dat set otp_verified = 0 where id = '" + id + "'";
+        con.query(querys,(err,result)=>{
+            if(err){res.json({"err_message":"Error occured in query " + err});}
+            else{
+                res.json({"status":"OK"});
+            }
+            });
+    }
+});
+//update user detail(address)
+app.post('/updateUser',(req,res)=>{
+    var address = req.body.address;
+    var id = req.body.id;
+    querys = "update user_dat set address = '" + address + "' where id = '" + id + "'";
+    con.query(querys,(err,result)=>{
+        if(err){res.json({"err_message":"Error occured in query " + err});}
+        else{
+            res.json({"status":"OK"});
+        }
+        });
+});
+
+//change password/forgot password
+app.post('/changePassword',(req,res)=>{
+    var md5_password = req.body.md5_password;
+    var id = req.body.id;
+    querys = "update user_dat set md5_password = '" + md5_password + "' where id = '" + id + "'";
+    con.query(querys,(err,result)=>{
+        if(err){res.json({"err_message":"Error occured in query " + err});}
+        else{
+            res.json({"status":"OK"});
+        }
+        });
+});
 }
