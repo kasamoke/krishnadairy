@@ -3,6 +3,7 @@ const app = express();
 
 var con = require('./dbconnection');
 require('./user')(app,con);
+require('./reg_order')(app,con);
 
 
 var bodyParser = require('body-parser');

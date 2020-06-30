@@ -5,11 +5,12 @@ module.exports = (app,con)=>{
     var bodyParser = require('body-parser');
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
+    //app.use(require('connect').bodyParser());
 
     //Request Controller and redirecter
     app.post('/user',(req,res)=>{
 
-    var operation = req.body.operation;
+    var operation = req.body.operation  ;
 
     if(operation === "create"){
         res.redirect(307,"/createUser");
@@ -24,7 +25,7 @@ module.exports = (app,con)=>{
     }
     else 
     if(operation === 'singleuser'){
-        res.redirect(303,"/singleUser");
+        res.redirect(307,"/singleUser");
     }
     else
     if(operation === 'loginuser'){
@@ -64,7 +65,7 @@ app.get('/allUsers',(req,res)=>{
 });
 
 //getting single user
-app.get('/singleUser',(req,res)=>{
+app.post('/singleUser',(req,res)=>{
     var id = req.body.id;
     querys = "select * from user_dat where id = '" + id + "'"; 
     con.query(querys,(err,result)=>{
