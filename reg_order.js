@@ -24,22 +24,26 @@ module.exports = (app, getConnection) => {
                     res.redirect(307, '/cancelOrder');
                 }
                 else
-                    if(operation === 'confirmorder'){
-                        res.redirect(307,'/confirmOrder');
+                    if (operation === 'confirmorder') {
+                        res.redirect(307, '/confirmOrder');
                     }
-                    else { res.json({ "err_message": "key value error" }); }
+                    else
+                        if (operation === 'getstatus') {
+                            res.redirect(307, '/getStatus');
+                        }
+                        else { res.json({ "err_message": "key value error" }); }
 
     });
 
     app.post('/getallOrders', (req, res) => {
         var userId = req.body.userId;
         var querys = "select * from reg_order_dat where userId = '" + userId + "'";
-        getConnection(function(err,connection){
-            connection.query(querys,function(err,result){
-                if (err) { 
+        getConnection(function (err, connection) {
+            connection.query(querys, function (err, result) {
+                if (err) {
                     res.json({ "err_message": "Some query/query parameter error occurred" });
                 }
-                else{
+                else {
                     res.json(JSON.stringify(result));
                 }
             });
@@ -63,39 +67,39 @@ module.exports = (app, getConnection) => {
         var orderQuantexs;
 
         var querys1 = "select totalQuant as orderQuantex from product_dat where productId = '" + prodId + "'";
-        getConnection(function(err,connection){
-            connection.query(querys1,function(err,result){
-                if (err) { 
+        getConnection(function (err, connection) {
+            connection.query(querys1, function (err, result) {
+                if (err) {
                     res.json({ "err_message": "Some query/query parameter error occurred" });
                 }
-                else{
+                else {
                     orderQuantexs = result[0].orderQuantex;
-                    if(orderQuant <= orderQuantexs){
+                    if (orderQuant <= orderQuantexs) {
                         var querys = "insert into reg_order_dat values('" + orderId + "','" + prodId + "','" + orderQuant + "','" + userId + "','" + orderStatus + "')";
-                        getConnection(function(err,connection){
-                        connection.query(querys,function(err,result){
-                            if (err) { 
+                        //  getConnection(function(err,connection){
+                        connection.query(querys, function (err, result) {
+                            if (err) {
                                 res.json({ "err_message": "Some query/query parameter error occurred" });
                             }
-                            else{
+                            else {
                                 res.json({ "message": "Order Successful" });
                                 var remQuant = orderQuantexs - orderQuant;
-                                var querys2 = "update product_dat set totalQuant = '" + remQuant + "'where productId = '"+ prodId + "'";
-                                connection.query(querys2,function(err,result){
-                                    if(err){res.json({"err_message": "some error occurred while updating the product"});}
-                                    else{
+                                var querys2 = "update product_dat set totalQuant = '" + remQuant + "'where productId = '" + prodId + "'";
+                                connection.query(querys2, function (err, result) {
+                                    if (err) { res.json({ "err_message": "some error occurred while updating the product" }); }
+                                    else {
                                         console.log("product table updation successful");
                                     }
-                                }); 
+                                });
                                 connection.release();
                             }
                         });
-                    });
+                        //});
                     }
-                    else{
-                        res.json({"error_message":"No that much stock"});
+                    else {
+                        res.json({ "error_message": "No that much stock" });
                     }
-             
+
                 }
             });
         });
@@ -112,14 +116,30 @@ module.exports = (app, getConnection) => {
     app.post('/cancelOrder', (req, res) => {
         var orderId = req.body.orderId;
 
-        var querys = "delete from reg_order_dat where orderId = '" + orderId + "'";
-        getConnection(function(err,connection){
-            connection.query(querys,function(err,result){
-                if (err) { 
-                    res.json({ "err_message": "Some query/query parameter error occurred" });
+        var querys1 = "select orderQuant,prodId from reg_order_dat where orderId = '" + orderId + "'";
+        getConnection(function (err, connection) {
+            connection.query(querys1, function (err, result) {
+                if (err) {
+                    res.json({ "err_message": "Some query/query parameter error occurred1" });
                 }
-                else{
-                    res.json({ "message": "Order Cancelation Successful" });
+                else {
+                    var querys2 = "update product_dat set totalQuant = totalQuant + '" + result[0].orderQuant + "' where productId = '" + result[0].prodId + "'";
+                    connection.query(querys2, function (err, result) {
+                        if (err) {
+                            res.json({ "err_message": "Some query/query parameter error occurred2" });
+                        }
+                        else {
+                            var querys = "delete from reg_order_dat where orderId = '" + orderId + "'";
+                            connection.query(querys, function (err, result1) {
+                                if (err) {
+                                    res.json({ "err_message": "Some query/query parameter error occurred3" });
+                                }
+                                else {
+                                    console.log("Order Deletion successful");
+                                }
+                            });
+                        }
+                    });
                 }
             });
         });
@@ -133,15 +153,15 @@ module.exports = (app, getConnection) => {
         // });
     });
 
-    app.post('/confirmOrder',(req,res)=>{
+    app.post('/confirmOrder', (req, res) => {
         var orderId = req.body.orderId;
-        var querys = "update reg_order_dat set orderStatus = 'CNF' where orderId = '" + orderId + "'"; 
-        getConnection(function(err,connection){
-            connection.query(querys,function(err,result){
-                if (err) { 
+        var querys = "update reg_order_dat set orderStatus = 'CNF' where orderId = '" + orderId + "'";
+        getConnection(function (err, connection) {
+            connection.query(querys, function (err, result) {
+                if (err) {
                     res.json({ "err_message": "Some query/query parameter error occurred" });
                 }
-                else{
+                else {
                     res.json({ "message": "Order Confirmation Successful" });
                 }
             });
@@ -155,5 +175,25 @@ module.exports = (app, getConnection) => {
         //         res.json({ "message": "Order Confirmation Successful" });
         //     }
         // });
+    });
+
+    app.post('/getStatus', (req, res) => {
+        var orderId = req.body.orderId;
+        querys = "select orderStatus from reg_order_dat where orderId = '" + orderId + "'";
+        getConnection(function (err, connection) {
+            connection.query(querys, function (err, result) {
+                if (err) {
+                    res.json({ "err_message": "Some query/query parameter error occurred" });
+                }
+                else {
+                    if (result.length !== 0) {
+                        res.json({ "orderStatus": result[0].orderStatus });
+                    }
+                    else {
+                        res.json({ "err_message": "Order doesn't exist" });
+                    }
+                }
+            });
+        });
     });
 } 
