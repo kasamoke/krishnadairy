@@ -1,16 +1,17 @@
 const mysql = require('mysql'); 
-var con = mysql.createConnection({
+var pool = mysql.createPool({
     host:"localhost",
     user:"root",
     password:"root",
     database:"projectbase"
 });
 
-con.connect((err)=>{
-    if(err) console.log("Following error occurred while connecting to the database \n" + err);
-    else{
-        console.log("Connection successful to the database");
-    }
-});
+var getConnection = function(callback) {
+    pool.getConnection(function(err, connection) {
+        if(err){console.log("Some error with connection to the DB");}
+        callback(err, connection);
+    });
+};
 
-module.exports = con;
+
+module.exports = getConnection;

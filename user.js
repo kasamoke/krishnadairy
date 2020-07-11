@@ -1,13 +1,11 @@
 const { query } = require('express');
-const getConnection = require('./dbconnection');
 
-module.exports = (app, con) => {
+module.exports = (app, getConnection) => {
 
     var bodyParser = require('body-parser');
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
    
-    //app.use(require('connect').bodyParser());
 
     //Request Controller and redirecter
     app.post('/user', (req, res) => {
