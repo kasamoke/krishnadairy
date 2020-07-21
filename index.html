@@ -1,0 +1,23 @@
+<html>
+    <head></head>
+    <body>
+        <p id="dts"></p>
+          <button type="button" onclick="loadDoc()">Request data</button>
+          <script>
+              function loadDoc() {
+                var xhttp = new XMLHttpRequest();
+
+                xhttp.open("POST", "http://localhost:3000/user", true);       //this we need to make variable (the method and the path)
+                xhttp.setRequestHeader("Content-type", "application/json;charset=UTF-8");
+                xhttp.send(JSON.stringify({"operation":"allusers"}));    //this also we need to make variable(the post body data)
+
+                xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {;
+                    document.getElementById("dts").innerHTML = JSON.parse(this.responseText);
+            }
+        };
+
+        }
+          </script>
+    </body>
+</html>
