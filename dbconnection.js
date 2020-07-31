@@ -1,3 +1,7 @@
+//|--------------------------------------------|
+//    Written By: Niraj Kumar Pandey
+//|--------------------------------------------|  
+
 const mysql = require('mysql'); 
 var pool = mysql.createPool({
     host:"localhost",
