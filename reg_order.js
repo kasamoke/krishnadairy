@@ -1,5 +1,8 @@
-const { query } = require('express');
+//|--------------------------------------------|
+//    Written By: Niraj Kumar Pandey
+//|--------------------------------------------|  
 
+const { query } = require('express');
 module.exports = (app, getConnection) => {
 
     var bodyParser = require('body-parser');
