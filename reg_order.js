@@ -1,6 +1,8 @@
 //|--------------------------------------------|
 //    Written By: Niraj Kumar Pandey
-//|--------------------------------------------|  
+//|--------------------------------------------|
+//To be hit
+//http://ec2-13-127-124-241.ap-south-1.compute.amazonaws.com:8080/reg_order
 
 const { query } = require('express');
 module.exports = (app, getConnection) => {
